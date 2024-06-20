@@ -143,15 +143,27 @@ class SiFiBridge:
         self.proc.stdin.write(b"-cmd 0\n")
         self.proc.stdin.flush()
         packet = np.zeros((14, 8))
+        emg_map = {
+            "emg0": 3,
+            "emg1": 5,
+            "emg2": 6,
+            "emg3": 2,
+            "emg4": 0,
+            "emg5": 7,
+            "emg6": 1,
+            "emg7": 4,
+        }
         while True:
             data_arr_as_json = self.proc.stdout.readline().decode()
             if data_arr_as_json == "" or data_arr_as_json.startswith("sending cmd"):
                 continue
-            data_arr_as_json = json.loads(data_arr_as_json)
-            if "data" in list(data_arr_as_json.keys()):
-                if "emg0" in list(data_arr_as_json["data"].keys()):
+            data_arr_as_json: dict = json.loads(data_arr_as_json)
+            if "data" in data_arr_as_json.keys():
+                data: dict = data_arr_as_json["data"]
+                if "emg0" in data.keys():
                     for c in range(packet.shape[1]):
-                        packet[:, c] = data_arr_as_json["data"]["emg" + str(c)]
+                        key = "emg" + str(c)
+                        packet[:, emg_map[key]] = data[key]
                     for s in range(packet.shape[0]):
                         for h in self.emg_handlers:
                             h(packet[s, :].tolist())
@@ -272,7 +284,7 @@ class SiFiBridgeStreamer:
             emg_notch = "0"
             if notch_on:
                 emg_notch = str(notch_freq)
-            self.config += emg_cfg % (emg_fir[1], emg_fir[0], emg_notch)
+            self.config += emg_cfg % (emg_fir[0], emg_fir[1], emg_notch)
         else:
             self.config += "enable_filters 0 "
 
