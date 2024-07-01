@@ -10,8 +10,8 @@ import re
 
 # this is responsible for receiving the data
 class SiFiBridge:
-    def __init__(self, config, version, other, bridge_version: str | None = None):
-        self.version = version
+    def __init__(self, config, device, other, bridge_version: str | None = None):
+        self.device = device
 
         pltfm = system()
         executable = f"sifi_bridge%s-{pltfm.lower()}" + (
@@ -111,7 +111,7 @@ class SiFiBridge:
     def connect(self):
         connected = False
         while not connected:
-            name = "-c BioPoint_v" + str(self.version) + "\n"
+            name = "-c " + str(self.device) + "\n"
             self.proc.stdin.write(bytes(name, "utf-8"))
             self.proc.stdin.flush()
 
@@ -252,7 +252,7 @@ class SiFiBridgeStreamer:
         self,
         ip,
         port,
-        version="1_2",
+        device="BioArmband",
         ecg=False,
         emg=True,
         eda=False,
@@ -261,14 +261,14 @@ class SiFiBridgeStreamer:
         notch_on=True,
         notch_freq=60,
         emgfir_on=True,
-        emg_fir=[20, 450],
+        emg_fir=(20, 450),
         other=False,
     ):
         # notch_on refers to EMG notch filter
         # notch_freq refers to frequency cutoff of notch filter
         #
         self.other = other
-        self.version = version
+        self.device = device
         self.ip = ip
         self.port = port
         self.config = "-s ch %s,%s,%s,%s,%s " % (
@@ -294,7 +294,7 @@ class SiFiBridgeStreamer:
     def start_stream(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-        b = SiFiBridge(self.config, self.version, self.other)
+        b = SiFiBridge(self.config, self.device, self.other)
         b.connect()
 
         def write_emg(emg):
