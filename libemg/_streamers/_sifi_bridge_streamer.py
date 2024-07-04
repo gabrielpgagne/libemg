@@ -161,9 +161,8 @@ class SiFiBridge:
             if "data" in data_arr_as_json.keys():
                 data: dict = data_arr_as_json["data"]
                 if "emg0" in data.keys():
-                    for c in range(packet.shape[1]):
-                        key = "emg" + str(c)
-                        packet[:, emg_map[key]] = data[key]
+                    for key, val in emg_map.items():
+                        packet[:, val] = data[key]
                     for s in range(packet.shape[0]):
                         for h in self.emg_handlers:
                             h(packet[s, :].tolist())
