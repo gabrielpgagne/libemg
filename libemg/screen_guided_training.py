@@ -401,7 +401,7 @@ class _SGTUI:
                             font=("Arial", 12),
                             command=self._next,
                         )
-                        next_gest.bind("<space>", self._next)
+                        self.window.bind("<space>", self._next)
                         redo_gest = Button(
                             self.window,
                             text="Redo",
@@ -425,7 +425,7 @@ class _SGTUI:
             self.next_rep_button = Button(
                 self.window, text="Next Rep", font=("Arial", 12), command=self._next_rep
             )
-            self.next_rep_button.bind("<Return>", self._next_rep)
+            self.window.bind("<Return>", self._next_rep)
             self.redo_rep_button = Button(
                 self.window, text="Redo Rep", font=("Arial", 12), command=self._redo_rep
             )
